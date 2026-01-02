@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZO-SUPREME-EMPIRE | Clean Slate</title>
+    <title>ZO-SUPREME-EMPIRE | Absolute Zero</title>
     <script src="https://js.stripe.com/v3/"></script>
     <style>
         :root { --gold: #FFD700; --navy: #001f3f; --deep: #000b18; --card: #001529; --txt: #f8f9fa; --ease: 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -38,7 +38,7 @@
         <div class="header-main">
             <div>
                 <div class="logo" onclick="setCat('All')">ZOC-REAL-NEXUS</div>
-                <div id="uID" style="font-family:monospace; font-size:0.7rem; color:#777;">UID: GUEST</div>
+                <div id="uID" style="font-family:monospace; font-size:0.7rem; color:#777;">UID: LOADING...</div>
             </div>
             <div id="uBal" class="balance-box">0 ZOC</div>
         </div>
@@ -55,20 +55,21 @@
             <h3 style="color:var(--gold);">🔐 Identity-Linked Gateway</h3>
             <input type="number" id="chargeIn" value="1000">
             <button class="btn" onclick="requestPayment()">💳 Stripe決済実行</button>
+            <button class="btn" style="background:#444; color:#fff; margin-top:20px; font-size:0.7rem;" onclick="hardReset()">⚠️ システム完全初期化（残高も消去）</button>
         </section>
 
         <div id="mView" style="display:block;">
             <section class="listing-section">
                 <h3 style="margin-top:0; color:var(--gold);">🚀 プロフェッショナル出品</h3>
-                <input type="text" id="t" placeholder="名称 (例: Soul-Sync Stylus)">
-                <textarea id="desc" placeholder="【詳細説明】筆圧や角度から感情をLED化する次世代デバイス..."></textarea>
+                <input type="text" id="t" placeholder="名称">
+                <textarea id="desc" placeholder="詳細説明..."></textarea>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <input type="text" id="imgUrl" placeholder="画像URL (https://...)">
-                    <input type="text" id="vidUrl" placeholder="動画URL (YouTube等)">
+                    <input type="text" id="imgUrl" placeholder="画像URL">
+                    <input type="text" id="vidUrl" placeholder="動画URL">
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <select id="c"><option value="生活">生活</option><option value="医療">医療</option><option value="技術">技術</option></select>
-                    <input type="number" id="p" value="350000">
+                    <input type="number" id="p" value="1000">
                 </div>
                 <button class="btn" onclick="pub()">帝国名簿に登録</button>
             </section>
@@ -78,21 +79,28 @@
 
     <script>
         const stripe = Stripe('pk_live_51Sl5KNRoDZXycUS5qWP43wLbJUEFqfn7d231ygbcbUCNRCcZLBXPcrZ190nLeoQgo8snVUCxh66AmRSM3foboNRu00C9fzN3Gw');
+        
         let uid = localStorage.getItem('zo_uid') || 'ZO-' + Math.random().toString(36).substr(2, 9).toUpperCase();
         localStorage.setItem('zo_uid', uid);
         document.getElementById('uID').innerText = `UID: ${uid}`;
 
         let bal = parseInt(localStorage.getItem(`zo_bal_${uid}`)) || 0;
+        let ideas = [];
         
-        // 【修正：中身を完全に空っぽにするバイっ！！】
-        let ideas = []; 
-        // ページ読み込み時にストレージから取得（なければ空）
-        try {
+        // 【修正：感情翻訳ペン等の初期データを完全に抹消バイっ！！】
+        function loadData() {
             const saved = localStorage.getItem('zo_supreme_ideas');
-            if(saved) ideas = JSON.parse(saved);
-        } catch(e) { ideas = []; }
+            ideas = saved ? JSON.parse(saved) : [];
+            refresh();
+        }
 
-        let curCat = 'All';
+        // 【修正：身に覚えのない残高を吹き飛ばすリセット機能バイっ！！】
+        function hardReset() {
+            if(confirm("旦那様、残高も出品もすべて消去し、帝国を『無』に戻しますか？")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
 
         function toggle(id) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -108,7 +116,7 @@
         function refresh() {
             document.getElementById('uBal').innerText = `${bal.toLocaleString()} ZOC`;
             const g = document.getElementById('grid'); g.innerHTML = "";
-            const f = curCat === 'All' ? ideas : ideas.filter(i => i.cat === curCat);
+            const f = (curCat === 'All') ? ideas : ideas.filter(i => i.cat === curCat);
             
             f.forEach((item) => {
                 const realIdx = ideas.indexOf(item);
@@ -121,4 +129,52 @@
                     <div class="card-body">
                         <div style="font-size:0.6rem; color:var(--gold);">OWNER: ${item.owner_uid === uid ? 'YOU' : 'EMPIRE'}</div>
                         <div style="font-weight:bold; font-size:1.2rem; margin:5px 0;">${item.title}</div>
-                        <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">${item.desc || ''}</
+                        <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">${item.desc || ''}</p>
+                        <div class="price-val">${item.price.toLocaleString()} ZOC</div>
+                        <button class="btn" onclick="buy(${realIdx})" ${item.owner_uid === uid ? 'disabled' : ''}>${item.owner_uid === uid ? '✅ 所有済み' : '購入する'}</button>
+                    </div>`;
+                g.appendChild(card);
+            });
+        }
+
+        function pub() {
+            const title = document.getElementById('t').value;
+            if(!title) return;
+            ideas.unshift({ 
+                title, desc: document.getElementById('desc').value,
+                img: document.getElementById('imgUrl').value, 
+                vid: document.getElementById('vidUrl').value,
+                cat: document.getElementById('c').value, 
+                price: parseInt(document.getElementById('p').value),
+                owner_uid: uid 
+            });
+            save();
+            ['t','desc','imgUrl','vidUrl'].forEach(id => document.getElementById(id).value = "");
+        }
+
+        function del(idx) {
+            if(confirm("この出品を削除しますか？")) {
+                ideas.splice(idx, 1);
+                save();
+            }
+        }
+
+        function buy(idx) {
+            if(bal < ideas[idx].price) return alert("残高不足バイ！");
+            bal -= ideas[idx].price;
+            ideas[idx].owner_uid = uid;
+            save();
+        }
+
+        function save() {
+            localStorage.setItem(`zo_bal_${uid}`, bal);
+            localStorage.setItem('zo_supreme_ideas', JSON.stringify(ideas));
+            refresh();
+        }
+        
+        let curCat = 'All';
+        function setCat(c) { curCat = c; toggle('mView'); refresh(); }
+        loadData();
+    </script>
+</body>
+</html>
