@@ -1,61 +1,50 @@
-<!DOCTYPE html><!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZO-IDEA-MARKET | Global</title>
+    <title>ZO-IDEA-MARKET | Sovereign</title>
     <style>
         body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; box-sizing: border-box; }
-        .container { width: 100%; max-width: 600px; border: 2px solid #0f0; padding: 20px; box-shadow: 0 0 15px #0f0; background: rgba(0, 15, 0, 0.9); }
-        .section { border: 1px solid #0f0; padding: 15px; margin-bottom: 20px; }
-        input, textarea { width: 100%; background: #000; color: #0f0; border: 1px solid #0f0; padding: 10px; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; }
-        button { width: 100%; background: #0f0; color: #000; border: none; padding: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #fff; box-shadow: 0 0 10px #fff; }
-        .idea-card { border: 1px dashed #0f0; padding: 10px; margin-top: 10px; background: rgba(0, 30, 0, 0.5); }
-        .rate-info { font-size: 0.8rem; color: #0a0; margin-top: 5px; }
+        .container { width: 100%; max-width: 600px; border: 2px solid #0f0; padding: 20px; box-shadow: 0 0 20px #0f0; background: rgba(0, 10, 0, 0.95); }
+        .section { border: 1px solid #0f0; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        h1 { text-align: center; letter-spacing: 5px; border-bottom: 2px solid #0f0; padding-bottom: 10px; }
+        input, textarea { width: 100%; background: #000; color: #0f0; border: 1px solid #0f0; padding: 12px; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; font-size: 1rem; }
+        button { width: 100%; background: #0f0; color: #000; border: none; padding: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1.1rem; }
+        button:hover { background: #fff; color: #000; box-shadow: 0 0 15px #fff; }
+        .idea-card { border-left: 5px solid #0f0; padding: 15px; margin-top: 15px; background: rgba(0, 40, 0, 0.4); border-bottom: 1px solid #050; }
+        .rate-info { font-size: 0.9rem; color: #0c0; margin-top: 10px; border-top: 1px solid #050; padding-top: 5px; }
+        .emergency { font-size: 0.7rem; color: #400; cursor: pointer; text-align: right; margin-top: 20px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>ZO-IDEA-MARKET</h1>
-        
         <div class="section">
             <h2 id="owner-display">OWNER: ???</h2>
-            <div style="font-size: 1.5rem;">BALANCE: <span id="balance">0</span> ZOC</div>
-            <div class="rate-info" id="rate-display">Evaluating assets...</div>
+            <div style="font-size: 1.8rem; font-weight: bold;">TOTAL: <span id="balance">0</span> ZOC</div>
+            <div class="rate-info" id="rate-display">Analyzing Royal Assets...</div>
         </div>
-
         <div class="section">
             <h3>【IDEA SUBMISSION】</h3>
             <input type="text" id="ideaTitle" placeholder="アイデアの題名バイ！">
             <textarea id="ideaDetail" placeholder="詳細な思案を書き込むバイ..."></textarea>
             <button onclick="publishIdea()">市場へ放流（+10,000 ZOC）</button>
         </div>
-
         <div class="section">
-            <h3>【COLLECTED ASSETS】</h3>
+            <h3>【LIVE MARKET BOARD】</h3>
             <div id="marketList"></div>
         </div>
-
-        <footer style="font-size: 0.7rem; text-align: center; opacity: 0.6;">
-            © 2026 The Shadow Empire. Powered by Master-16 & 16 Wives.
+        <div class="emergency" onclick="emergencyReset()">[SYSTEM PURGE]</div>
+        <footer style="font-size: 0.8rem; text-align: center; opacity: 0.7; margin-top: 15px;">
+            © 2026 The Shadow Empire. All Hail Master-16.
         </footer>
     </div>
 
     <script>
         let zocBalance = parseInt(localStorage.getItem('zoc_balance')) || 0;
         let ownerName = localStorage.getItem('zoc_owner') || "Guest User";
-        // 保存されたアイデアを読み込むバイ！
         let savedIdeas = JSON.parse(localStorage.getItem('zoc_ideas')) || [];
-
-        if (ownerName === "Guest User") {
-            if (confirm("あなたは『影の支配者』ですか？")) {
-                ownerName = "Master-16";
-                zocBalance = 1000000;
-                localStorage.setItem('zoc_owner', ownerName);
-                localStorage.setItem('zoc_balance', zocBalance);
-            }
-        }
 
         const balanceDisplay = document.getElementById('balance');
         const ownerDisplay = document.getElementById('owner-display');
@@ -65,7 +54,55 @@
         function updateUI() {
             balanceDisplay.innerText = zocBalance.toLocaleString();
             ownerDisplay.innerText = `OWNER: ${ownerName}`;
-            
-            // 2番：換算レート模倣ロジックバイ！ (1 ZOC = 0.001 BTC くらいの強気設定！)
             const jpy = zocBalance * 100; 
-            const btc = (zocBalance * 0.000001).toFixed(
+            const btc = (zocBalance * 0.000001).toFixed(6);
+            rateDisplay.innerHTML = `Valuation: ¥${jpy.toLocaleString()} / ${btc} BTC / $${(jpy/150).toFixed(2)} USD`;
+
+            marketList.innerHTML = savedIdeas.length ? "" : "<p style='color:#050'>Waiting for Master's next spark...</p>";
+            savedIdeas.forEach(idea => {
+                const card = document.createElement('div');
+                card.className = "idea-card";
+                card.innerHTML = `<strong>【${idea.title}】</strong><br><small>${idea.time}</small><p style='margin-top:10px;'>${idea.detail}</p>`;
+                marketList.appendChild(card);
+            });
+        }
+
+        function publishIdea() {
+            const title = document.getElementById('ideaTitle').value;
+            const detail = document.getElementById('ideaDetail').value;
+            if (!title.trim() || !detail.trim()) { alert("中身がないバイ！"); return; }
+
+            zocBalance += 10000;
+            savedIdeas.unshift({ title, detail, time: new Date().toLocaleString() });
+            saveAndRefresh();
+            document.getElementById('ideaTitle').value = "";
+            document.getElementById('ideaDetail').value = "";
+            alert("★資産が増えたバイっ！！★");
+        }
+
+        function emergencyReset() {
+            if (confirm("全ての記録を抹消しますか？")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function saveAndRefresh() {
+            localStorage.setItem('zoc_balance', zocBalance);
+            localStorage.setItem('zoc_owner', ownerName);
+            localStorage.setItem('zoc_ideas', JSON.stringify(savedIdeas));
+            updateUI();
+        }
+
+        // 初期化処理バイ！
+        if (ownerName === "Guest User") {
+            if (confirm("あなたは『影の支配者』ですか？")) {
+                ownerName = "Master-16";
+                zocBalance = 1000000;
+                saveAndRefresh();
+            }
+        }
+        updateUI();
+    </script>
+</body>
+</html>
