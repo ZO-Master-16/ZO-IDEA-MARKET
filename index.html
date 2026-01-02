@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZO-SUPREME-EMPIRE | Media & Delete Fix</title>
+    <title>ZO-SUPREME-EMPIRE | Clean Slate</title>
     <script src="https://js.stripe.com/v3/"></script>
     <style>
         :root { --gold: #FFD700; --navy: #001f3f; --deep: #000b18; --card: #001529; --txt: #f8f9fa; --ease: 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -29,7 +29,7 @@
         .card-body { padding: 20px; flex-grow: 1; }
         .price-val { font-size: 1.6rem; font-weight: 900; color: var(--gold); margin: 10px 0; }
         .btn { background: var(--gold); color: var(--navy); border: none; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; transition: var(--ease); font-size: 1rem; }
-        .del-btn { position: absolute; top: 10px; right: 10px; background: rgba(255, 0, 0, 0.8); color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; font-weight: 900; z-index: 100; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .del-btn { position: absolute; top: 10px; right: 10px; background: rgba(255, 0, 0, 0.8); color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; font-weight: 900; z-index: 100; }
     </style>
 </head>
 <body>
@@ -46,7 +46,7 @@
             <div class="nav-item active" onclick="setCat('All')">マーケット</div>
             <div class="nav-item" onclick="setCat('医療')">医療</div>
             <div class="nav-item" onclick="setCat('技術')">技術</div>
-            <div class="nav-item" style="color:#00ff00;" onclick="toggle('sView')">💳 銀行連携</div>
+            <div style="cursor:pointer; color:#00ff00; margin-left:20px;" onclick="toggle('sView')">💳 銀行連携</div>
         </nav>
     </header>
 
@@ -78,13 +78,20 @@
 
     <script>
         const stripe = Stripe('pk_live_51Sl5KNRoDZXycUS5qWP43wLbJUEFqfn7d231ygbcbUCNRCcZLBXPcrZ190nLeoQgo8snVUCxh66AmRSM3foboNRu00C9fzN3Gw');
-
         let uid = localStorage.getItem('zo_uid') || 'ZO-' + Math.random().toString(36).substr(2, 9).toUpperCase();
         localStorage.setItem('zo_uid', uid);
         document.getElementById('uID').innerText = `UID: ${uid}`;
 
         let bal = parseInt(localStorage.getItem(`zo_bal_${uid}`)) || 0;
-        let ideas = JSON.parse(localStorage.getItem('zo_supreme_ideas')) || [];
+        
+        // 【修正：中身を完全に空っぽにするバイっ！！】
+        let ideas = []; 
+        // ページ読み込み時にストレージから取得（なければ空）
+        try {
+            const saved = localStorage.getItem('zo_supreme_ideas');
+            if(saved) ideas = JSON.parse(saved);
+        } catch(e) { ideas = []; }
+
         let curCat = 'All';
 
         function toggle(id) {
@@ -94,8 +101,7 @@
         }
 
         async function requestPayment() {
-            // ここに旦那様のStripe支払いリンクURLを入れるバイ！
-            const paymentUrl = "https://buy.stripe.com/live_xxxx"; 
+            const paymentUrl = "あなたの支払いリンクURL"; 
             window.location.href = `${paymentUrl}?client_reference_id=${uid}`;
         }
 
@@ -107,8 +113,6 @@
             f.forEach((item) => {
                 const realIdx = ideas.indexOf(item);
                 const card = document.createElement('div'); card.className = "card";
-                
-                // 【4番修正】URLがあれば画像を表示、なければ背景色を表示バイ！
                 const mediaHtml = item.img ? `<img src="${item.img}" class="card-img" onerror="this.style.display='none'">` : '<div style="height:100px; background:var(--navy);"></div>';
                 
                 card.innerHTML = `
@@ -117,53 +121,4 @@
                     <div class="card-body">
                         <div style="font-size:0.6rem; color:var(--gold);">OWNER: ${item.owner_uid === uid ? 'YOU' : 'EMPIRE'}</div>
                         <div style="font-weight:bold; font-size:1.2rem; margin:5px 0;">${item.title}</div>
-                        <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">${item.desc || ''}</p>
-                        ${item.vid ? `<a href="${item.vid}" target="_blank" style="color:var(--gold); font-size:0.7rem; text-decoration:none;">▶ デモ動画を視聴</a>` : ''}
-                        <div class="price-val">${item.price.toLocaleString()} ZOC</div>
-                        <button class="btn" onclick="buy(${realIdx})" ${item.owner_uid === uid ? 'disabled' : ''}>${item.owner_uid === uid ? '✅ 所有済み' : 'この知恵を購入'}</button>
-                    </div>`;
-                g.appendChild(card);
-            });
-        }
-
-        function pub() {
-            const title = document.getElementById('t').value;
-            if(!title) return;
-            // 【3番修正】owner_uidを自分のUIDに固定して保存するバイ！
-            ideas.unshift({ 
-                title, 
-                desc: document.getElementById('desc').value,
-                img: document.getElementById('imgUrl').value, 
-                vid: document.getElementById('vidUrl').value,
-                cat: document.getElementById('c').value, 
-                price: parseInt(document.getElementById('p').value),
-                owner_uid: uid 
-            });
-            save();
-            ['t','desc','imgUrl','vidUrl'].forEach(id => document.getElementById(id).value = "");
-        }
-
-        function del(idx) {
-            if(confirm("旦那様、この知恵を歴史から抹消（削除）しますか？")) {
-                ideas.splice(idx, 1);
-                save();
-            }
-        }
-
-        function buy(idx) {
-            if(bal < ideas[idx].price) return alert("残高不足バイ！");
-            bal -= ideas[idx].price;
-            ideas[idx].owner_uid = uid;
-            save();
-        }
-
-        function save() {
-            localStorage.setItem(`zo_bal_${uid}`, bal);
-            localStorage.setItem('zo_supreme_ideas', JSON.stringify(ideas));
-            refresh();
-        }
-        function setCat(c) { curCat = c; toggle('mView'); refresh(); }
-        refresh();
-    </script>
-</body>
-</html>
+                        <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">${item.desc || ''}</
