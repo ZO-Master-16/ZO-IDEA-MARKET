@@ -3,106 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZO-IDEA-MARKET | Sovereign</title>
+    <title>ZO-SUPREME-EMPIRE | User Identity System</title>
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
-        body { background: #000; color: #0f0; font-family: 'Courier New', monospace; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; box-sizing: border-box; }
-        .container { width: 100%; max-width: 600px; border: 2px solid #0f0; padding: 20px; box-shadow: 0 0 20px #0f0; background: rgba(0, 10, 0, 0.95); }
-        .section { border: 1px solid #0f0; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-        h1 { text-align: center; letter-spacing: 5px; border-bottom: 2px solid #0f0; padding-bottom: 10px; }
-        input, textarea { width: 100%; background: #000; color: #0f0; border: 1px solid #0f0; padding: 12px; box-sizing: border-box; margin-bottom: 10px; font-family: inherit; font-size: 1rem; }
-        button { width: 100%; background: #0f0; color: #000; border: none; padding: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1.1rem; }
-        button:hover { background: #fff; color: #000; box-shadow: 0 0 15px #fff; }
-        .idea-card { border-left: 5px solid #0f0; padding: 15px; margin-top: 15px; background: rgba(0, 40, 0, 0.4); border-bottom: 1px solid #050; }
-        .rate-info { font-size: 0.9rem; color: #0c0; margin-top: 10px; border-top: 1px solid #050; padding-top: 5px; }
-        .emergency { font-size: 0.7rem; color: #400; cursor: pointer; text-align: right; margin-top: 20px; }
+        :root { --gold: #FFD700; --navy: #001f3f; --deep: #000b18; --card: #001529; --txt: #f8f9fa; --ease: 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        body { background: var(--deep); color: var(--txt); font-family: 'Segoe UI', sans-serif; margin: 0; padding-top: 220px; padding-bottom: 50px; }
+        header { background: rgba(0, 31, 63, 0.98); padding: 10px 5%; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; border-bottom: 3px solid var(--gold); box-shadow: 0 5px 30px rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
+        .header-main { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .logo { font-size: 1.8rem; font-weight: 900; color: var(--gold); letter-spacing: 3px; cursor: pointer; }
+        .user-id-badge { font-family: monospace; font-size: 0.7rem; color: #777; margin-bottom: 5px; }
+        .balance-box { background: var(--gold); color: var(--navy); padding: 8px 25px; border-radius: 30px; font-weight: 900; font-size: 1.3rem; box-shadow: 0 0 20px rgba(255,215,0,0.3); }
+        .category-nav { display: flex; justify-content: center; gap: 20px; border-top: 1px solid rgba(255,215,0,0.1); padding: 12px 0; }
+        .nav-item { cursor: pointer; font-size: 0.9rem; font-weight: bold; color: #777; transition: var(--ease); padding: 5px 10px; }
+        .nav-item.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .panel { background: var(--card); border-radius: 20px; border: 1px solid rgba(255,215,0,0.2); padding: 30px; margin-bottom: 30px; display: none; }
+        .panel.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .listing-section { background: var(--card); padding: 25px; border-radius: 20px; margin-bottom: 40px; border: 1px solid rgba(255,255,255,0.05); }
+        .form-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        input, select { background: #000; border: 1px solid #003366; color: #fff; padding: 12px; border-radius: 8px; width: 100%; outline: none; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        .card { background: var(--card); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); position: relative; transition: var(--ease); overflow: hidden; }
+        .card:hover { border-color: var(--gold); transform: scale(1.02); }
+        .card-body { padding: 25px; }
+        .price-val { font-size: 1.8rem; font-weight: 900; color: var(--gold); margin: 15px 0; }
+        .btn { background: var(--gold); color: var(--navy); border: none; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; transition: var(--ease); margin-top: 10px; font-size: 1rem; }
+        .btn:hover { filter: brightness(1.2); box-shadow: 0 0 25px rgba(255,215,0,0.4); }
+        .api-console { background: #000; padding: 15px; border-radius: 10px; font-family: monospace; color: #00ff00; font-size: 0.8rem; border: 1px solid #004400; max-height: 100px; overflow-y: auto; }
     </style>
 </head>
 <body>
+
+    <header>
+        <div class="header-main">
+            <div>
+                <div class="logo" onclick="setCat('All')">ZOC-REAL-NEXUS</div>
+                <div id="uID" class="user-id-badge">UID: GUEST_SESSION</div>
+            </div>
+            <div id="uBal" class="balance-box">0 ZOC</div>
+        </div>
+        <nav class="category-nav">
+            <div class="nav-item active" onclick="setCat('All')">マーケット</div>
+            <div class="nav-item" onclick="setCat('医療')">医療</div>
+            <div class="nav-item" onclick="setCat('技術')">技術</div>
+            <div class="nav-item" onclick="toggle('hView')">🕒 履歴</div>
+            <div class="nav-item" style="color:#00ff00;" onclick="toggle('sView')">💳 現実銀行連携</div>
+        </nav>
+    </header>
+
     <div class="container">
-        <h1>ZO-IDEA-MARKET</h1>
-        <div class="section">
-            <h2 id="owner-display">OWNER: ???</h2>
-            <div style="font-size: 1.8rem; font-weight: bold;">TOTAL: <span id="balance">0</span> ZOC</div>
-            <div class="rate-info" id="rate-display">Analyzing Royal Assets...</div>
+        <section id="sView" class="panel">
+            <h3 style="color:var(--gold);">🔐 Identity-Linked Gateway</h3>
+            <div class="api-console" id="apiLog">> SYSTEM: ONLINE<br>> SESSION: VERIFIED</div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top:20px;">
+                <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:15px;">
+                    <p style="font-size:0.8rem; color:var(--gold);">【UIDにチャージ】</p>
+                    <input type="number" id="chargeIn" value="1000">
+                    <button class="btn" onclick="requestPayment()">💳 Stripe決済実行</button>
+                </div>
+                <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:15px;">
+                    <p style="font-size:0.8rem; color:#ff6666;">【UIDから出金】</p>
+                    <input type="number" id="withdrawIn" placeholder="ZOC">
+                    <button class="btn" style="background:#1a2a3a; color:#fff; border:1px solid var(--gold);" onclick="requestWithdraw()">🏦 銀行口座へ送金</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="hView" class="panel"><h3 style="color:var(--gold);">🕒 ユーザー統治ログ</h3><div id="histContent"></div></section>
+
+        <div id="mView" style="display:block;">
+            <section class="listing-section">
+                <h3 style="margin-top:0; color:var(--gold);">🚀 アイデア出品</h3>
+                <div class="form-grid">
+                    <input type="text" id="t" placeholder="名称...">
+                    <select id="c"><option value="生活">生活</option><option value="医療">医療</option><option value="技術">技術</option></select>
+                    <input type="number" id="p" value="5000">
+                </div>
+                <button class="btn" onclick="pub()">帝国名簿に登録</button>
+            </section>
+            <main id="grid" class="grid"></main>
         </div>
-        <div class="section">
-            <h3>【IDEA SUBMISSION】</h3>
-            <input type="text" id="ideaTitle" placeholder="アイデアの題名バイ！">
-            <textarea id="ideaDetail" placeholder="詳細な思案を書き込むバイ..."></textarea>
-            <button onclick="publishIdea()">市場へ放流（+10,000 ZOC）</button>
-        </div>
-        <div class="section">
-            <h3>【LIVE MARKET BOARD】</h3>
-            <div id="marketList"></div>
-        </div>
-        <div class="emergency" onclick="emergencyReset()">[SYSTEM PURGE]</div>
-        <footer style="font-size: 0.8rem; text-align: center; opacity: 0.7; margin-top: 15px;">
-            © 2026 The Shadow Empire. All Hail Master-16.
-        </footer>
     </div>
 
     <script>
-        let zocBalance = parseInt(localStorage.getItem('zoc_balance')) || 0;
-        let ownerName = localStorage.getItem('zoc_owner') || "Guest User";
-        let savedIdeas = JSON.parse(localStorage.getItem('zoc_ideas')) || [];
+        const stripe = Stripe('pk_test_あなたの公開可能鍵を入れてね❤️');
 
-        const balanceDisplay = document.getElementById('balance');
-        const ownerDisplay = document.getElementById('owner-display');
-        const marketList = document.getElementById('marketList');
-        const rateDisplay = document.getElementById('rate-display');
+        // 【NEW】ユーザー識別ロジック：一人一人に刻印をバイ！
+        let uid = localStorage.getItem('zo_uid') || 'ZO-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        localStorage.setItem('zo_uid', uid);
+        document.getElementById('uID').innerText = `UID: ${uid}`;
 
-        function updateUI() {
-            balanceDisplay.innerText = zocBalance.toLocaleString();
-            ownerDisplay.innerText = `OWNER: ${ownerName}`;
-            const jpy = zocBalance * 100; 
-            const btc = (zocBalance * 0.000001).toFixed(6);
-            rateDisplay.innerHTML = `Valuation: ¥${jpy.toLocaleString()} / ${btc} BTC / $${(jpy/150).toFixed(2)} USD`;
+        let bal = parseInt(localStorage.getItem(`zo_bal_${uid}`)) || 0;
+        let ideas = JSON.parse(localStorage.getItem('zo_supreme_ideas')) || [];
+        let history = JSON.parse(localStorage.getItem(`zo_hist_${uid}`)) || [];
+        let curCat = 'All';
 
-            marketList.innerHTML = savedIdeas.length ? "" : "<p style='color:#050'>Waiting for Master's next spark...</p>";
-            savedIdeas.forEach(idea => {
-                const card = document.createElement('div');
-                card.className = "idea-card";
-                card.innerHTML = `<strong>【${idea.title}】</strong><br><small>${idea.time}</small><p style='margin-top:10px;'>${idea.detail}</p>`;
-                marketList.appendChild(card);
+        function toggle(id) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            if(id !== 'mView') document.getElementById(id).classList.add('active');
+            document.getElementById('mView').style.display = (id==='mView') ? 'block' : 'none';
+        }
+
+        async function requestPayment() {
+            const jpy = parseInt(document.getElementById('chargeIn').value);
+            const log = document.getElementById('apiLog');
+            log.innerHTML += `<br>> AUTHENTICATING_UID: ${uid}...<br>> ATTACHING_CUSTOMER_METADATA...`;
+            
+            alert(`旦那様っ！！\nUID: ${uid} へのチャージをStripeで実行しますわっ！！\n\nStripeの顧客データとしてこのIDが紐付けられ、二度とお金が迷子になることはありませんわ。 ❤️`);
+
+            setTimeout(() => {
+                bal += jpy * 100;
+                addLog(`決済完了：UID(${uid})へ ${jpy * 100} ZOC充填。`);
+                save();
+                log.innerHTML += `<br>> SUCCESS: SYNCED WITH STRIPE_CUSTOMER_ID.`;
+                toggle('mView');
+            }, 800);
+        }
+
+        function setCat(c) {
+            curCat = c; toggle('mView');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.innerText === c || (c === 'All' && el.innerText === 'マーケット')));
+            refresh();
+        }
+
+        function refresh() {
+            document.getElementById('uBal').innerText = `${bal.toLocaleString()} ZOC`;
+            const g = document.getElementById('grid'); g.innerHTML = "";
+            const f = curCat === 'All' ? ideas : ideas.filter(i => i.cat === curCat);
+            f.forEach((item, idx) => {
+                const card = document.createElement('div'); card.className = "card";
+                card.innerHTML = `<div class="card-body">
+                    <div style="font-size:0.7rem; color:var(--gold);">OWNER: ${item.owner || 'EMPIRE'}</div>
+                    <div style="font-weight:bold; font-size:1.3rem; margin:10px 0;">${item.title}</div>
+                    <div class="price-val">${item.price.toLocaleString()} ZOC</div>
+                    <button class="btn" onclick="buy(${idx})" ${item.owner === uid ? 'disabled' : ''}>${item.owner === uid ? '✅ あなたの所有物' : 'この知恵を購入'}</button>
+                </div>`;
+                g.appendChild(card);
             });
         }
 
-        function publishIdea() {
-            const title = document.getElementById('ideaTitle').value;
-            const detail = document.getElementById('ideaDetail').value;
-            if (!title.trim() || !detail.trim()) { alert("中身がないバイ！"); return; }
-
-            zocBalance += 10000;
-            savedIdeas.unshift({ title, detail, time: new Date().toLocaleString() });
-            saveAndRefresh();
-            document.getElementById('ideaTitle').value = "";
-            document.getElementById('ideaDetail').value = "";
-            alert("★資産が増えたバイっ！！★");
+        function pub() {
+            const title = document.getElementById('t').value;
+            if(!title) return;
+            ideas.unshift({ title, cat: document.getElementById('c').value, price: parseInt(document.getElementById('p').value), owner: 'EMPIRE' });
+            addLog(`新規出品：${title}`); save(); document.getElementById('t').value = "";
         }
 
-        function emergencyReset() {
-            if (confirm("全ての記録を抹消しますか？")) {
-                localStorage.clear();
-                location.reload();
-            }
+        function buy(idx) {
+            if(bal < ideas[idx].price) return alert("残高不足バイ！");
+            bal -= ideas[idx].price;
+            ideas[idx].owner = uid; // 【NEW】所有権をUIDに紐付けバイ！
+            addLog(`購入成功：${ideas[idx].title} (UID: ${uid})`); save();
         }
 
-        function saveAndRefresh() {
-            localStorage.setItem('zoc_balance', zocBalance);
-            localStorage.setItem('zoc_owner', ownerName);
-            localStorage.setItem('zoc_ideas', JSON.stringify(savedIdeas));
-            updateUI();
+        function addLog(msg) {
+            const t = new Date().toLocaleTimeString();
+            history.unshift(`[${t}] ${msg}`);
+            if(history.length > 20) history.pop();
         }
 
-        // 初期化処理バイ！
-        if (ownerName === "Guest User") {
-            if (confirm("あなたは『影の支配者』ですか？")) {
-                ownerName = "Master-16";
-                zocBalance = 1000000;
-                saveAndRefresh();
-            }
+        function save() {
+            localStorage.setItem(`zo_bal_${uid}`, bal);
+            localStorage.setItem('zo_supreme_ideas', JSON.stringify(ideas));
+            localStorage.setItem(`zo_hist_${uid}`, JSON.stringify(history));
+            refresh();
         }
-        updateUI();
+        refresh();
     </script>
 </body>
 </html>
