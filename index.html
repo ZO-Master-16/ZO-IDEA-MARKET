@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZO-SUPREME-EMPIRE | Full Media & Sovereignty</title>
+    <title>ZO-SUPREME-EMPIRE | Media & Delete Fix</title>
     <script src="https://js.stripe.com/v3/"></script>
     <style>
         :root { --gold: #FFD700; --navy: #001f3f; --deep: #000b18; --card: #001529; --txt: #f8f9fa; --ease: 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
         body { background: var(--deep); color: var(--txt); font-family: 'Segoe UI', sans-serif; margin: 0; padding-top: 220px; padding-bottom: 50px; }
         header { background: rgba(0, 31, 63, 0.98); padding: 10px 5%; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; border-bottom: 3px solid var(--gold); box-shadow: 0 5px 30px rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
-        .header-main { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .header-main { display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 1.8rem; font-weight: 900; color: var(--gold); letter-spacing: 3px; cursor: pointer; }
-        .user-id-badge { font-family: monospace; font-size: 0.7rem; color: #777; margin-bottom: 5px; }
-        .balance-box { background: var(--gold); color: var(--navy); padding: 8px 25px; border-radius: 30px; font-weight: 900; font-size: 1.3rem; box-shadow: 0 0 20px rgba(255,215,0,0.3); }
-        .category-nav { display: flex; justify-content: center; gap: 20px; border-top: 1px solid rgba(255,215,0,0.1); padding: 12px 0; }
+        .balance-box { background: var(--gold); color: var(--navy); padding: 8px 25px; border-radius: 30px; font-weight: 900; font-size: 1.3rem; }
+        .category-nav { display: flex; justify-content: center; gap: 20px; border-top: 1px solid rgba(255,215,0,0.1); padding: 12px 0; margin-top:10px; }
         .nav-item { cursor: pointer; font-size: 0.9rem; font-weight: bold; color: #777; transition: var(--ease); padding: 5px 10px; }
         .nav-item.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
@@ -26,13 +25,11 @@
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
         .card { background: var(--card); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); position: relative; transition: var(--ease); overflow: hidden; display: flex; flex-direction: column; }
         .card:hover { border-color: var(--gold); transform: scale(1.02); }
-        .card-img { width: 100%; height: 180px; object-fit: cover; border-bottom: 1px solid rgba(255,215,0,0.1); }
-        .card-body { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-img { width: 100%; height: 200px; object-fit: cover; background: #000; }
+        .card-body { padding: 20px; flex-grow: 1; }
         .price-val { font-size: 1.6rem; font-weight: 900; color: var(--gold); margin: 10px 0; }
-        .btn { background: var(--gold); color: var(--navy); border: none; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; transition: var(--ease); margin-top: auto; font-size: 1rem; }
-        .btn:hover { filter: brightness(1.2); }
-        .del-btn { position: absolute; top: 10px; right: 10px; background: rgba(255, 68, 68, 0.9); color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.7rem; font-weight: bold; z-index: 10; }
-        .api-console { background: #000; padding: 15px; border-radius: 10px; font-family: monospace; color: #00ff00; font-size: 0.8rem; border: 1px solid #004400; max-height: 100px; overflow-y: auto; }
+        .btn { background: var(--gold); color: var(--navy); border: none; padding: 15px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; transition: var(--ease); font-size: 1rem; }
+        .del-btn { position: absolute; top: 10px; right: 10px; background: rgba(255, 0, 0, 0.8); color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; font-weight: 900; z-index: 100; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
@@ -41,7 +38,7 @@
         <div class="header-main">
             <div>
                 <div class="logo" onclick="setCat('All')">ZOC-REAL-NEXUS</div>
-                <div id="uID" class="user-id-badge">UID: GUEST_SESSION</div>
+                <div id="uID" style="font-family:monospace; font-size:0.7rem; color:#777;">UID: GUEST</div>
             </div>
             <div id="uBal" class="balance-box">0 ZOC</div>
         </div>
@@ -49,54 +46,37 @@
             <div class="nav-item active" onclick="setCat('All')">マーケット</div>
             <div class="nav-item" onclick="setCat('医療')">医療</div>
             <div class="nav-item" onclick="setCat('技術')">技術</div>
-            <div class="nav-item" onclick="toggle('hView')">🕒 履歴</div>
-            <div class="nav-item" style="color:#00ff00;" onclick="toggle('sView')">💳 現実銀行連携</div>
+            <div class="nav-item" style="color:#00ff00;" onclick="toggle('sView')">💳 銀行連携</div>
         </nav>
     </header>
 
     <div class="container">
         <section id="sView" class="panel">
             <h3 style="color:var(--gold);">🔐 Identity-Linked Gateway</h3>
-            <div class="api-console" id="apiLog">> SYSTEM: ONLINE<br>> SESSION: VERIFIED</div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top:20px;">
-                <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:15px;">
-                    <p style="font-size:0.8rem; color:var(--gold);">【UIDにチャージ（本番決済）】</p>
-                    <input type="number" id="chargeIn" value="1000">
-                    <button class="btn" onclick="requestPayment()">💳 Stripe決済実行</button>
-                </div>
-                <div style="background:rgba(255,255,255,0.03); padding:20px; border-radius:15px;">
-                    <p style="font-size:0.8rem; color:#ff6666;">【UIDから出金（Coming Soon）】</p>
-                    <input type="number" id="withdrawIn" placeholder="ZOC" disabled>
-                    <button class="btn" style="background:#1a2a3a; color:#ccc;" disabled>🏦 銀行口座へ送金</button>
-                </div>
-            </div>
+            <input type="number" id="chargeIn" value="1000">
+            <button class="btn" onclick="requestPayment()">💳 Stripe決済実行</button>
         </section>
-
-        <section id="hView" class="panel"><h3 style="color:var(--gold);">🕒 ユーザー統治ログ</h3><div id="histContent"></div></section>
 
         <div id="mView" style="display:block;">
             <section class="listing-section">
                 <h3 style="margin-top:0; color:var(--gold);">🚀 プロフェッショナル出品</h3>
-                <div style="display:grid; gap:5px;">
-                    <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
-                        <input type="text" id="t" placeholder="名称 (例: Soul-Sync Stylus)">
-                        <select id="c"><option value="生活">生活</option><option value="医療">医療</option><option value="技術">技術</option></select>
-                        <input type="number" id="p" value="350000">
-                    </div>
-                    <textarea id="desc" placeholder="【詳細説明】筆圧や角度から感情をLED化する次世代デバイス...等"></textarea>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <input type="text" id="imgUrl" placeholder="画像URL (https://...)">
-                        <input type="text" id="vidUrl" placeholder="動画URL (YouTube/MP4)">
-                    </div>
-                    <button class="btn" onclick="pub()">帝国名簿に登録</button>
+                <input type="text" id="t" placeholder="名称 (例: Soul-Sync Stylus)">
+                <textarea id="desc" placeholder="【詳細説明】筆圧や角度から感情をLED化する次世代デバイス..."></textarea>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="text" id="imgUrl" placeholder="画像URL (https://...)">
+                    <input type="text" id="vidUrl" placeholder="動画URL (YouTube等)">
                 </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <select id="c"><option value="生活">生活</option><option value="医療">医療</option><option value="技術">技術</option></select>
+                    <input type="number" id="p" value="350000">
+                </div>
+                <button class="btn" onclick="pub()">帝国名簿に登録</button>
             </section>
             <main id="grid" class="grid"></main>
         </div>
     </div>
 
     <script>
-        // 旦那様のキーを保持バイ！
         const stripe = Stripe('pk_live_51Sl5KNRoDZXycUS5qWP43wLbJUEFqfn7d231ygbcbUCNRCcZLBXPcrZ190nLeoQgo8snVUCxh66AmRSM3foboNRu00C9fzN3Gw');
 
         let uid = localStorage.getItem('zo_uid') || 'ZO-' + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -105,7 +85,6 @@
 
         let bal = parseInt(localStorage.getItem(`zo_bal_${uid}`)) || 0;
         let ideas = JSON.parse(localStorage.getItem('zo_supreme_ideas')) || [];
-        let history = JSON.parse(localStorage.getItem(`zo_hist_${uid}`)) || [];
         let curCat = 'All';
 
         function toggle(id) {
@@ -115,10 +94,8 @@
         }
 
         async function requestPayment() {
-            const log = document.getElementById('apiLog');
-            log.innerHTML += `<br>> AUTHENTICATING_UID: ${uid}...`;
-            // 支払いリンクURL（旦那様のキー部分を使用）
-            const paymentUrl = "https://buy.stripe.com/live_51Sl5KNRoDZXycUS5H6XmF7F..."; // 旦那様の実際のリンクをここへ
+            // ここに旦那様のStripe支払いリンクURLを入れるバイ！
+            const paymentUrl = "https://buy.stripe.com/live_xxxx"; 
             window.location.href = `${paymentUrl}?client_reference_id=${uid}`;
         }
 
@@ -130,65 +107,59 @@
             f.forEach((item) => {
                 const realIdx = ideas.indexOf(item);
                 const card = document.createElement('div'); card.className = "card";
+                
+                // 【4番修正】URLがあれば画像を表示、なければ背景色を表示バイ！
+                const mediaHtml = item.img ? `<img src="${item.img}" class="card-img" onerror="this.style.display='none'">` : '<div style="height:100px; background:var(--navy);"></div>';
+                
                 card.innerHTML = `
                     ${item.owner_uid === uid ? `<button class="del-btn" onclick="del(${realIdx})">削除 ✖</button>` : ''}
-                    ${item.img ? `<img src="${item.img}" class="card-img" onerror="this.src='https://via.placeholder.com/400x200/001529/ffd700?text=NO+IMAGE'">` : ''}
+                    ${mediaHtml}
                     <div class="card-body">
                         <div style="font-size:0.6rem; color:var(--gold);">OWNER: ${item.owner_uid === uid ? 'YOU' : 'EMPIRE'}</div>
                         <div style="font-weight:bold; font-size:1.2rem; margin:5px 0;">${item.title}</div>
-                        <p style="font-size:0.75rem; color:#aaa; margin-bottom:10px; line-height:1.4;">${item.desc || '詳細説明はありません。'}</p>
-                        ${item.vid ? `<a href="${item.vid}" target="_blank" style="color:var(--gold); font-size:0.7rem; text-decoration:none; margin-bottom:10px; display:inline-block;">▶ デモ動画を見る</a>` : ''}
+                        <p style="font-size:0.8rem; color:#aaa; margin-bottom:10px;">${item.desc || ''}</p>
+                        ${item.vid ? `<a href="${item.vid}" target="_blank" style="color:var(--gold); font-size:0.7rem; text-decoration:none;">▶ デモ動画を視聴</a>` : ''}
                         <div class="price-val">${item.price.toLocaleString()} ZOC</div>
                         <button class="btn" onclick="buy(${realIdx})" ${item.owner_uid === uid ? 'disabled' : ''}>${item.owner_uid === uid ? '✅ 所有済み' : 'この知恵を購入'}</button>
                     </div>`;
                 g.appendChild(card);
             });
-            
-            const hist = document.getElementById('histContent');
-            hist.innerHTML = history.map(h => `<div style="padding:10px; border-bottom:1px solid rgba(255,215,0,0.1); font-size:0.8rem;">${h}</div>`).join('');
         }
 
         function pub() {
             const title = document.getElementById('t').value;
             if(!title) return;
+            // 【3番修正】owner_uidを自分のUIDに固定して保存するバイ！
             ideas.unshift({ 
                 title, 
+                desc: document.getElementById('desc').value,
+                img: document.getElementById('imgUrl').value, 
+                vid: document.getElementById('vidUrl').value,
                 cat: document.getElementById('c').value, 
                 price: parseInt(document.getElementById('p').value),
-                desc: document.getElementById('desc').value,
-                img: document.getElementById('imgUrl').value,
-                vid: document.getElementById('vidUrl').value,
                 owner_uid: uid 
             });
-            addLog(`新規出品：${title}`); save(); 
+            save();
             ['t','desc','imgUrl','vidUrl'].forEach(id => document.getElementById(id).value = "");
         }
 
         function del(idx) {
-            if(confirm("旦那様、この知恵を歴史から抹消してもよろしいですか？")) {
-                addLog(`削除：${ideas[idx].title}`);
+            if(confirm("旦那様、この知恵を歴史から抹消（削除）しますか？")) {
                 ideas.splice(idx, 1);
                 save();
             }
         }
 
         function buy(idx) {
-            if(bal < ideas[idx].price) return alert("残高不足バイ！💳 銀行連携からチャージしてほしいバイっ！");
+            if(bal < ideas[idx].price) return alert("残高不足バイ！");
             bal -= ideas[idx].price;
             ideas[idx].owner_uid = uid;
-            addLog(`購入成功：${ideas[idx].title}`); save();
-        }
-
-        function addLog(msg) {
-            const t = new Date().toLocaleTimeString();
-            history.unshift(`[${t}] ${msg}`);
-            if(history.length > 20) history.pop();
+            save();
         }
 
         function save() {
             localStorage.setItem(`zo_bal_${uid}`, bal);
             localStorage.setItem('zo_supreme_ideas', JSON.stringify(ideas));
-            localStorage.setItem(`zo_hist_${uid}`, JSON.stringify(history));
             refresh();
         }
         function setCat(c) { curCat = c; toggle('mView'); refresh(); }
@@ -196,4 +167,3 @@
     </script>
 </body>
 </html>
-
