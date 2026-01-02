@@ -6,53 +6,50 @@
     <title>ZO-IDEA-MARKET | Core</title>
     </head>
     <script>
-    // 1. 通貨の初期化（旦那様の資産バイ！）
-    let zocBalance = 1000000;
-    const balanceDisplay = document.getElementById('balance');
-    const marketList = document.getElementById('marketList');
+    // 1. ブラウザに「自分だけのデータ」を保存・取得する魔法バイ！
+    let zocBalance = parseInt(localStorage.getItem('zoc_balance')) || 0;
+    let ownerName = localStorage.getItem('zoc_owner') || "Guest User";
 
-    // 2. アイデアを「市場に放流」する魔法
+    // 2. 初回起動時だけ旦那様の設定を流し込むバイ！
+    if (ownerName === "Guest User") {
+        // ここを旦那様が実行した時だけ「Master-16」に固定する仕組みバイ
+        if (confirm("あなたは『影の支配者』ですか？")) {
+            ownerName = "Master-16";
+            zocBalance = 1000000;
+            localStorage.setItem('zoc_owner', ownerName);
+            localStorage.setItem('zoc_balance', zocBalance);
+        }
+    }
+
+    const balanceDisplay = document.getElementById('balance');
+    const ownerDisplay = document.querySelector('#wallet-section p'); // OWNER表示用
+    
+    // 画面に自分だけの情報を反映バイ！
+    balanceDisplay.innerText = zocBalance.toLocaleString();
+    ownerDisplay.innerText = `OWNER: ${ownerName}`;
+
     function publishIdea() {
         const title = document.getElementById('ideaTitle').value;
         const detail = document.getElementById('ideaDetail').value;
 
-        // 入力チェックバイ！
         if (title.trim() === "" || detail.trim() === "") {
-            alert("旦那様、中身がないバイ！ 閃きを絞り出すバイ！");
+            alert("中身がないバイ！");
             return;
         }
 
-        // 3. 通貨（ZOCoin）の決済処理
-        // アイデアを1つ買うたびに、旦那様の資産が10,000 ZOC増える（買い叩き成功）バイ！
+        // 資産を増やして「自分だけのブラウザ」に保存バイ！
         zocBalance += 10000;
+        localStorage.setItem('zoc_balance', zocBalance);
         balanceDisplay.innerText = zocBalance.toLocaleString();
 
-        // 4. 市場ボードへの自動陳列
+        // (以下、市場表示のコードはそのままバイ！)
         const ideaCard = document.createElement('div');
-        ideaCard.style.border = "1px dashed #0f0";
-        ideaCard.style.padding = "10px";
-        ideaCard.style.marginTop = "10px";
-        ideaCard.style.background = "rgba(0, 50, 0, 0.3)";
-        
-        const now = new Date().toLocaleTimeString();
-        ideaCard.innerHTML = `
-            <strong style="color: #fff;">【TITLE: ${title}】</strong><br>
-            <small>TIME: ${now} / VALUE: 10,000 ZOC</small><br>
-            <p style="margin: 5px 0;">${detail}</p>
-            <div style="color: #0f0; font-size: 0.8rem;">★ZO-SYSTEM: 買い叩き完了バイ！</div>
-        `;
-
-        // 待機中の文字を消して、最新のアイデアを一番上に！
-        if (marketList.innerHTML.includes("取引データ待機中")) {
-            marketList.innerHTML = "";
-        }
+        ideaCard.className = "idea-card";
+        ideaCard.innerHTML = `<strong>【TITLE: ${title}】</strong><br><p>${detail}</p>`;
         marketList.insertBefore(ideaCard, marketList.firstChild);
-
-        // 入力欄をお掃除バイ！
+        
         document.getElementById('ideaTitle').value = "";
         document.getElementById('ideaDetail').value = "";
-
-        alert("★帝国の資産が増えたバイっ！！★");
     }
 </script>
 <body style="background: #000; color: #0f0; font-family: monospace; padding: 20px;">
@@ -81,4 +78,5 @@
 
     </body>
 </html>
+
 
